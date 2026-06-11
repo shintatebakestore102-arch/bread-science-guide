@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭製パンの科学と実践：マスターガイド</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Chosen Palette: Artisan Bakery Palette (Earthy tones, warm whites, deep browns, soft oranges) -->
+    <!-- Application Structure Plan: 
+         1. Introduction: Establishes the scientific perspective (from PDF 1).
+         2. Method Shift: Compares old kneading vs. new autolyse/punching method.
+         3. Process Guide: Tabbed interface for the new streamlined workflow.
+         4. Sourdough Mastery: White sourdough guide (from PDF 2).
+         5. Science Data: Charts and scientific explanations of fermentation/baking.
+         6. AI Assistant: A functional chat interface powered by Gemini API for dynamic troubleshooting and theory explanations.
+    -->
+    <!-- Visualization & Content Choices: 
+         - Bar Chart: Compares flour protein.
+         - Line Chart: Yeast activity vs. Temperature.
+         - Interactive Tabs: Step-by-step guide without clutter.
+         - Tiled Grid: Sourdough benefits and failure patterns.
+         - Chat UI: Direct interaction with Gemini LLM.
+         NO SVG/Mermaid used.
+    -->
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; scroll-behavior: smooth; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        
+        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .chat-messages { scrollbar-width: thin; scrollbar-color: #D97706 #F5F5F4; }
+        .typing-indicator span { animation: blink 1.4s infinite both; height: 6px; width: 6px; background: #78350F; border-radius: 50%; display: inline-block; margin: 0 1px; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
+        
+        /* Custom scrollbar for webkit */
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-track { background: #F5F5F4; border-radius: 4px; }
+        .chat-messages::-webkit-scrollbar-thumb { background-color: #D97706; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-[#FAFAF9] text-[#44403C] antialiased leading-relaxed">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-[#FAFAF9]/95 backdrop-blur border-b border-[#E7E5E4] shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <i class="fa-solid fa-wheat-awn text-[#D97706] text-xl"></i>
+                    <span class="text-xl font-bold text-[#78350F] tracking-wide">ARTISAN BREAD LAB</span>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-bold">
+                    <a href="#intro" class="text-[#57534E] hover:text-[#D97706] transition-colors">理論</a>
+                    <a href="#method" class="text-[#57534E] hover:text-[#D97706] transition-colors">製法</a>
+                    <a href="#sourdough" class="text-[#57534E] hover:text-[#D97706] transition-colors">サワー種</a>
+                    <a href="#science" class="text-[#57534E] hover:text-[#D97706] transition-colors">データ</a>
+                    <a href="#ai-assistant" class="bg-[#78350F] text-white px-4 py-2 rounded-full hover:bg-[#92400E] transition-colors">✨ AI相談室</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header / Intro (Based on PDF 1) -->
+    <header id="intro" class="bg-[#FEF3C7] py-20 border-b border-[#FDE68A] scroll-mt-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-[#78350F] tracking-tight mb-6 leading-tight">
+                家庭製パンにおける<br>物理化学的アプローチ
+            </h1>
+            <p class="text-lg md:text-xl text-[#78350F]/80 mb-8 font-medium">
+                パン作りは、単なる料理ではありません。<br>温度、圧力、微生物の代謝活動が複雑に絡み合う高度な科学です。
+            </p>
+            <div class="bg-white/60 p-6 md:p-8 rounded-2xl text-left shadow-sm border border-[#FDE68A]/50 text-[#57534E]">
+                <p class="mb-4">
+                    家庭における製パン技術を初級者から中級者へと昇華させる最大の鍵は、「なぜその作業を行うのか」「なぜその現象が起きているのか」という<strong>科学的メカニズムの理解</strong>にあります。
+                </p>
+                <p>
+                    生地がベタつくという一つの物理現象に対しても、それが「仕込み水の過多」か、「こね不足による結合不良」か、あるいは「過発酵によるグルテンの構造破壊」かを論理的に推論する能力。この理論的基盤があれば、レシピという「点」の知識は、世界中の多種多様なパンを再現する応用力という「面」へと広がります。
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-32">
+
+        <!-- Method Shift -->
+        <section id="method" class="scroll-mt-24">
+            <div class="text-center mb-12">
+                <span class="text-[#D97706] font-bold tracking-wider text-sm">PARADIGM SHIFT</span>
+                <h2 class="text-3xl font-bold text-[#78350F] mt-2 mb-4">「こねる」から「待つ・つなぐ」へ</h2>
+                <p class="text-[#57534E] max-w-2xl mx-auto">
+                    長時間の重労働から解放される、科学に基づいたスマートな生地作り。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                <div class="bg-white p-8 rounded-2xl border border-[#E7E5E4] shadow-sm">
+                    <h3 class="text-xl font-bold text-[#92400E] mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-droplet text-blue-500"></i> 水和の魔法「オートリーズ」
+                    </h3>
+                    <p class="text-[#57534E] mb-4">
+                        粉と水を混ぜて20〜30分放置する手法。待っている間に水が粉の中心まで浸透し、酵素（プロテアーゼ）が働いてタンパク質を少し分解します。力ずくでこねなくても、自然と伸びの良いグルテンの網目が作られ始めます。
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-[#E7E5E4] shadow-sm border-l-4 border-l-[#D97706]">
+                    <h3 class="text-xl font-bold text-[#92400E] mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-hands-holding-circle text-[#D97706]"></i> 骨格を鍛える「パンチ」
+                    </h3>
+                    <p class="text-[#57534E] mb-4">
+                        発酵の途中で生地を引っ張って折りたたむ（Stretch & Fold）作業。絡まったグルテンの網目の方向を揃えて強くしなやかな骨格を作り、同時に生地全体の温度を均一化し、酵母に新しい酸素を供給します。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Process Tabs -->
+            <div class="bg-white rounded-3xl shadow-md border border-[#E7E5E4] overflow-hidden">
+                <div class="bg-[#F5F5F4] px-6 py-4 border-b border-[#E7E5E4]">
+                    <h3 class="font-bold text-[#78350F]">こねない製法（オートリーズ法）の基本工程</h3>
+                </div>
+                <div class="flex flex-wrap border-b border-[#E7E5E4] bg-white" id="process-tabs">
+                    <!-- JS generated -->
+                </div>
+                <div class="p-6 md:p-10 bg-[#FAFAF9]" id="process-contents">
+                    <!-- JS generated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Sourdough Mastery (From PDF 2) -->
+        <section id="sourdough" class="scroll-mt-24">
+            <div class="text-center mb-12">
+                <span class="text-[#D97706] font-bold tracking-wider text-sm">ADVANCED TECHNIQUE</span>
+                <h2 class="text-3xl font-bold text-[#78350F] mt-2 mb-4">ホワイトサワー種 マスター</h2>
+                <p class="text-[#57534E] max-w-2xl mx-auto">
+                    乳酸菌と酵母の共生メカニズムを理解し、プロフェッショナルな風味をコントロールする。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+                <div class="bg-white p-6 rounded-2xl border border-[#E7E5E4] shadow-sm">
+                    <div class="w-12 h-12 bg-[#FEF3C7] rounded-full flex items-center justify-center text-[#D97706] text-xl mb-4"><i class="fa-solid fa-wine-glass-empty"></i></div>
+                    <h3 class="font-bold text-[#78350F] mb-2">1. 複雑な風味の付与</h3>
+                    <p class="text-sm text-[#57534E]">乳酸菌が生み出す有機酸（乳酸・酢酸）により、単調な小麦の味に「旨味」と「奥行き」が生まれます。</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-[#E7E5E4] shadow-sm">
+                    <div class="w-12 h-12 bg-[#FEF3C7] rounded-full flex items-center justify-center text-[#D97706] text-xl mb-4"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <h3 class="font-bold text-[#78350F] mb-2">2. 老化(パサつき)の遅延</h3>
+                    <p class="text-sm text-[#57534E]">サワー種に含まれる酸が生地の保水性を高め、デンプンの劣化を防ぎます。翌日以降もしっとりとした食感を保ちます。</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-[#E7E5E4] shadow-sm">
+                    <div class="w-12 h-12 bg-[#FEF3C7] rounded-full flex items-center justify-center text-[#D97706] text-xl mb-4"><i class="fa-solid fa-dumbbell"></i></div>
+                    <h3 class="font-bold text-[#78350F] mb-2">3. 生地の骨格強化</h3>
+                    <p class="text-sm text-[#57534E]">適切な酸度(pH4.0〜4.5付近)はグルテン網を適度に引き締め、オーブンでの窯伸びをサポートします。</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-[#E7E5E4] shadow-sm overflow-hidden flex flex-col md:flex-row">
+                <div class="bg-[#78350F] text-white p-8 md:w-1/3 flex flex-col justify-center">
+                    <h3 class="text-2xl font-bold mb-4">管理の極意と<br>失敗パターン</h3>
+                    <p class="text-[#FEF3C7] text-sm leading-relaxed mb-6">
+                        サワー種は生き物です。ピークを見極め、適切なタイミングで「休眠」させることが重要です。
+                    </p>
+                    <div class="p-4 bg-white/10 rounded-xl border border-white/20">
+                        <strong class="block text-white mb-1"><i class="fa-solid fa-lightbulb text-yellow-300"></i> Pro Tip</strong>
+                        <span class="text-sm">透明な容器を使い、混ぜた直後のラインに輪ゴムで印をつける。表面がわずかにドーム状を保っている状態が「ピーク」です。</span>
+                    </div>
+                </div>
+                <div class="p-8 md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-bold text-[#92400E] mb-2 border-b border-[#E7E5E4] pb-2">失敗 1: 過発酵</h4>
+                        <p class="text-sm text-[#57534E] mb-2">ピークを過ぎて陥没し始めた状態。</p>
+                        <p class="text-sm text-[#57534E] bg-[#FEF3C7]/50 p-3 rounded-lg border border-[#FDE68A]">
+                            <strong>メカニズム：</strong> 酸度が高くなりすぎるとプロテアーゼ酵素が過剰に働き、パン生地のグルテンを溶かしてしまいます。結果、窯伸びせず、酸っぱいだけでダレた生地になります。
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#92400E] mb-2 border-b border-[#E7E5E4] pb-2">失敗 2: 酵母の活力低下</h4>
+                        <p class="text-sm text-[#57534E] mb-2">冷蔵庫に長期間放置しすぎた状態。</p>
+                        <p class="text-sm text-[#57534E] bg-[#FEF3C7]/50 p-3 rounded-lg border border-[#FDE68A]">
+                            <strong>メカニズム：</strong> 低温に強い乳酸菌ばかりが増殖し、パンを膨らませる「野生酵母」の力が極端に弱まります。ピーク到達後すぐに4℃で休眠させ、定期的に種継ぎが必要です。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Science & Data -->
+        <section id="science" class="scroll-mt-24">
+            <div class="text-center mb-12">
+                <span class="text-[#D97706] font-bold tracking-wider text-sm">DATA VISUALIZATION</span>
+                <h2 class="text-3xl font-bold text-[#78350F] mt-2 mb-4">製パンの化学データを読み解く</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Flour Chart -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-[#E7E5E4]">
+                    <h3 class="text-lg font-bold text-center text-[#78350F] mb-2">小麦粉の種類とタンパク質含有量</h3>
+                    <p class="text-sm text-center text-[#57534E] mb-6">パン作りに「強力粉」が使われる理由は、グルテンの元となるタンパク質が多いからです。</p>
+                    <div class="chart-container">
+                        <canvas id="flourChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Temp Chart -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-[#E7E5E4]">
+                    <h3 class="text-lg font-bold text-center text-[#78350F] mb-2">生地温度とイースト（酵母）の活動量</h3>
+                    <p class="text-sm text-center text-[#57534E] mb-6">温度帯の理解。60℃を超えると活動を停止し、生地の骨格が固定化（糊化）されます。</p>
+                    <div class="chart-container">
+                        <canvas id="tempChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Assistant ✨ -->
+        <section id="ai-assistant" class="scroll-mt-24 bg-gradient-to-br from-[#FEF3C7] to-[#FAFAF9] -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-16 border-t border-[#FDE68A]">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-[#78350F] mb-4 flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-robot text-[#D97706]"></i> 製パン・サイエンス AI相談室 ✨
+                    </h2>
+                    <p class="text-[#57534E] max-w-2xl mx-auto">
+                        生地のベタつき、発酵の見極め、サワー種の管理など、パン作りに関する疑問を入力してください。<br>最新のAI技術（Gemini API）が、物理化学的メカニズムに基づいた論理的なアドバイスを提供します。
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-xl border border-[#E7E5E4] overflow-hidden flex flex-col md:flex-row h-[600px]">
+                    
+                    <!-- Sidebar Context -->
+                    <div class="bg-[#78350F] text-white w-full md:w-1/3 p-6 flex flex-col hidden md:flex">
+                        <h3 class="text-xl font-bold mb-4 border-b border-white/20 pb-2">AIに聞いてみよう</h3>
+                        <div class="space-y-4 flex-grow">
+                            <button onclick="document.getElementById('ai-input').value='生地が手にベタベタくっついてまとまりません。考えられる原因と対処法を科学的に教えてください。'" class="w-full text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-sm border border-white/10">
+                                💡 生地のベタつきの原因と対策
+                            </button>
+                            <button onclick="document.getElementById('ai-input').value='ホワイトサワー種が陥没して強い酸っぱい匂いがします。パン生地に使うとどうなりますか？'" class="w-full text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-sm border border-white/10">
+                                💡 サワー種の過発酵の影響
+                            </button>
+                            <button onclick="document.getElementById('ai-input').value='長時間こねるストレート法から、オートリーズとパンチ法に変えるメリットを、酵素の働きを交えて解説して。'" class="w-full text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-sm border border-white/10">
+                                💡 オートリーズ法のメリット
+                            </button>
+                            <button onclick="document.getElementById('ai-input').value='オーブンに入れた時、パンが膨らむ（窯伸びする）仕組みを温度変化（60℃〜150℃）と共に教えて。'" class="w-full text-left p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-sm border border-white/10">
+                                💡 窯伸びと焼き色のメカニズム
+                            </button>
+                        </div>
+                        <div class="text-xs text-white/50 mt-4 text-center">Powered by Gemini AI</div>
+                    </div>
+
+                    <!-- Chat Interface -->
+                    <div class="flex-1 flex flex-col bg-[#FAFAF9] relative">
+                        <div id="chat-messages" class="flex-1 p-6 overflow-y-auto chat-messages space-y-4">
+                            <!-- Welcome Message -->
+                            <div class="flex justify-start">
+                                <div class="bg-white border border-[#E7E5E4] text-[#44403C] rounded-2xl rounded-tl-sm px-5 py-3 max-w-[85%] shadow-sm">
+                                    <p class="font-bold text-[#78350F] mb-1 text-sm"><i class="fa-solid fa-robot"></i> ブーランジェAI</p>
+                                    <p>こんにちは！製パンに関する科学的な疑問や、生地のトラブルについて何でも聞いてください。論理的なアプローチで解決策をご提案します。</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Typing Indicator (Hidden by default) -->
+                        <div id="typing-indicator" class="hidden px-6 pb-2">
+                            <div class="bg-white border border-[#E7E5E4] rounded-2xl rounded-tl-sm px-4 py-2 inline-block shadow-sm typing-indicator">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+
+                        <!-- Input Area -->
+                        <div class="p-4 bg-white border-t border-[#E7E5E4]">
+                            <form id="chat-form" class="flex gap-2 relative">
+                                <input type="text" id="ai-input" class="flex-1 bg-[#F5F5F4] border border-[#E7E5E4] rounded-full px-5 py-3 focus:outline-none focus:border-[#D97706] focus:ring-1 focus:ring-[#D97706] transition-all" placeholder="質問や状況を入力してください..." autocomplete="off">
+                                <button type="submit" id="ai-submit" class="bg-[#D97706] text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#B45309] transition-colors shadow-sm disabled:opacity-50">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </form>
+                            <div id="api-error" class="text-red-500 text-xs mt-2 hidden text-center">通信エラーが発生しました。時間をおいて再度お試しください。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#44403C] text-[#D6D3D1] py-10 text-center">
+        <div class="max-w-6xl mx-auto px-4">
+            <p class="mb-2 font-bold tracking-widest text-[#FAFAF9]">ARTISAN BREAD LAB</p>
+            <p class="text-sm">&copy; 2026 Bread Science Interactive Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Process Tabs Logic ---
+        const processData = [
+            { id: 1, title: "オートリーズ (水和)", short: "1. 混ぜて待つ", icon: "fa-droplet", desc: "粉と水だけをボウルで粉気がなくなるまで大まかに混ぜます。ラップをして<strong>20〜30分室温で放置</strong>します。<br><br><strong>科学的意義:</strong> 水が粉の中心まで浸透し（水和）、小麦の酵素（プロテアーゼ）がタンパク質に働きかけます。これにより、こねなくても自然と伸びの良いグルテンが形成され始め、生地が扱いやすくなります。" },
+            { id: 2, title: "本ごね (イースト・塩の添加)", short: "2. 本ごね", icon: "fa-bowl-food", desc: "オートリーズが終わった生地に、イーストと塩（レシピによっては少量の水）を加え、生地に馴染むまで手でつかむように揉み込みます。表面が少し滑らかになれば完了です。長時間のこねは不要です。<br><br><strong>科学的意義:</strong> 塩が後から入ることで、オートリーズ中の酵素の働きを阻害しません。塩が加わるとグルテンが引き締まり、生地に弾力が生まれます。" },
+            { id: 3, title: "バルク発酵 & パンチ", short: "3. 発酵＆パンチ", icon: "fa-arrows-to-circle", desc: "生地を暖かい場所（約28℃）で発酵させます。発酵の途中で、30分〜45分おきに合計2〜3回、生地の端を引っ張って中心に折りたたむ「パンチ（Stretch & Fold）」を行います。<br><br><strong>科学的意義:</strong> パンチにより、絡まったグルテンの網目が整って強い骨格ができ、ガスをしっかり保持できるようになります。また、生地内外の温度が均一化され、酵母に新しい酸素が供給されて発酵が促進されます。" },
+            { id: 4, title: "分割・丸め・ベンチタイム", short: "4. 分割＆休ませる", icon: "fa-cut", desc: "約2倍に膨らんだ生地を、作りたいサイズに切り分け、切り口を中に入れ込むように軽く丸めます。その後、乾燥を防いで15〜20分休ませます（ベンチタイム）。<br><br><strong>科学的意義:</strong> 切ったり丸めたりすることで生地は物理的なストレスを受け、グルテンが緊張して固くなります。ベンチタイムをとることで緊張が緩和され、次の成形時に生地が破れることなく伸びるようになります。" },
+            { id: 5, title: "成形 & 最終発酵", short: "5. 成形＆最終発酵", icon: "fa-shapes", desc: "生地を目的の形に整え、約35℃で一回り大きくなるまで最終発酵させます。焼く前の最終的なボリュームとガスを生地に蓄えます。<br><br><strong>科学的意義:</strong> ここでの発酵不足は目の詰まった重いパンになり、過発酵は焼成時に生地がしぼむ原因になります。指で軽く押して、少し跡が残りつつもゆっくり戻るくらいがベストな状態です。" },
+            { id: 6, title: "焼成 (オーブンスプリング)", short: "6. 焼く", icon: "fa-fire-burner", desc: "十分に予熱した高温のオーブンで焼き上げます。パンの表面にクープ（切れ込み）を入れることで、生地が上に伸びやすくなります。<br><br><strong>科学的意義:</strong> オーブンに入れると、熱で内部のガスと水分が一気に膨張します（窯伸び）。生地温度が60℃を超えるとデンプンが糊化して骨格が固定され、150℃を超えると表面でメイラード反応やカラメル化が起き、香ばしい焼き色と風味が生まれます。" }
+        ];
+
+        const tabsContainer = document.getElementById('process-tabs');
+        const contentsContainer = document.getElementById('process-contents');
+
+        processData.forEach((step, index) => {
+            // Button
+            const btn = document.createElement('button');
+            btn.className = `flex-1 py-4 px-2 text-sm md:text-base font-bold text-center border-b-4 transition-all duration-200 ${index === 0 ? 'border-[#D97706] text-[#D97706] bg-[#FAFAF9]' : 'border-transparent text-[#78716C] hover:text-[#D97706] hover:bg-[#FAFAF9]/50'}`;
+            btn.innerHTML = `<span class="block text-xs mb-1 opacity-70">STEP ${step.id}</span>${step.short}`;
+            btn.onclick = () => switchTab(index, btn);
+            tabsContainer.appendChild(btn);
+
+            // Content
+            const content = document.createElement('div');
+            content.className = `tab-content ${index === 0 ? 'active' : ''}`;
+            content.id = `tab-content-${index}`;
+            content.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full bg-[#FEF3C7] flex items-center justify-center flex-shrink-0 text-[#D97706] text-xl mt-1 shadow-sm">
+                        <i class="fa-solid ${step.icon}"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-2xl font-bold text-[#78350F] mb-4">${step.title}</h4>
+                        <p class="text-[#57534E] leading-relaxed">${step.desc}</p>
+                    </div>
+                </div>
+            `;
+            contentsContainer.appendChild(content);
+        });
+
+        function switchTab(activeIndex, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-content-${activeIndex}`).classList.add('active');
+            
+            const buttons = tabsContainer.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('border-[#D97706]', 'text-[#D97706]', 'bg-[#FAFAF9]');
+                btn.classList.add('border-transparent', 'text-[#78716C]');
+            });
+            btnElement.classList.remove('border-transparent', 'text-[#78716C]');
+            btnElement.classList.add('border-[#D97706]', 'text-[#D97706]', 'bg-[#FAFAF9]');
+        }
+
+        // --- Chart.js ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // Flour Chart
+            const ctxFlour = document.getElementById('flourChart').getContext('2d');
+            new Chart(ctxFlour, {
+                type: 'bar',
+                data: {
+                    labels: ['薄力粉', '中力粉', '強力粉'],
+                    datasets: [{
+                        label: 'タンパク質含有量 (%)',
+                        data: [8, 9.5, 12.5],
+                        backgroundColor: ['#FDE68A', '#FBBF24', '#D97706'],
+                        borderRadius: 6,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(context) { return context.parsed.y + '%'; } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 15, title: { display: true, text: 'タンパク質量 (%)' }, grid: { borderDash: [2, 4], color: '#E7E5E4' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Temperature Chart
+            const ctxTemp = document.getElementById('tempChart').getContext('2d');
+            new Chart(ctxTemp, {
+                type: 'line',
+                data: {
+                    labels: ['0℃', '10℃', '20℃', '28℃', '40℃', '50℃', '60℃'],
+                    datasets: [{
+                        label: 'イーストのガス発生量',
+                        data: [0, 5, 40, 100, 60, 20, 0],
+                        borderColor: '#78350F',
+                        backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#D97706',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, max: 110, ticks: { display: false }, grid: { display: false }, title: { display: true, text: '活動レベル' } },
+                        x: { title: { display: true, text: '生地の温度' }, grid: { borderDash: [2, 4], color: '#E7E5E4' } }
+                    }
+                }
+            });
+        });
+
+        // --- Gemini API Chat Logic ✨ ---
+        const apiKey = ""; // API key is injected by the environment
+        const modelEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        
+        const chatForm = document.getElementById('chat-form');
+        const inputField = document.getElementById('ai-input');
+        const submitBtn = document.getElementById('ai-submit');
+        const chatMessages = document.getElementById('chat-messages');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const apiError = document.getElementById('api-error');
+
+        // Parse markdown text simply (bold and line breaks)
+        function formatResponse(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function appendMessage(text, isUser) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            
+            const msgBubble = document.createElement('div');
+            if (isUser) {
+                msgBubble.className = 'bg-[#D97706] text-white rounded-2xl rounded-tr-sm px-5 py-3 max-w-[85%] shadow-sm';
+                msgBubble.textContent = text;
+            } else {
+                msgBubble.className = 'bg-white border border-[#E7E5E4] text-[#44403C] rounded-2xl rounded-tl-sm px-5 py-3 max-w-[85%] shadow-sm';
+                msgBubble.innerHTML = `<p class="font-bold text-[#78350F] mb-1 text-sm"><i class="fa-solid fa-robot"></i> ブーランジェAI ✨</p>${formatResponse(text)}`;
+            }
+            
+            wrapper.appendChild(msgBubble);
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function callGemini(prompt) {
+            const systemInstruction = `あなたは製パンの物理化学・生物学的プロセスに精通したプロのブーランジェ（パン職人）AIアシスタントです。
+            ユーザーからのパン作りに関する質問に対して、以下の点に注意して回答してください：
+            1. 単なるレシピや手順だけでなく、「なぜそうなるのか」という論理的かつ科学的な視点（温度、酵素、タンパク質、発酵、微生物など）から解説すること。
+            2. 日本の高校生でも理解できるような、丁寧で分かりやすい言葉遣いを使用すること。
+            3. ホワイトサワー種、オートリーズ法、パンチ（折りたたみ）、メイラード反応、デンプンの糊化などの専門用語が出た場合は、簡潔に補足すること。
+            4. 回答は長すぎず、ポイントを絞って見やすくフォーマット（箇条書きなど）すること。
+            5. パン作り以外の質問には「私は製パン専門のAIアシスタントです」と丁寧に断ること。`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                generationConfig: { temperature: 0.7 }
+            };
+
+            let retries = 5;
+            let delay = 1000;
+
+            while (retries > 0) {
+                try {
+                    const response = await fetch(modelEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+                        return data.candidates[0].content.parts[0].text;
+                    } else {
+                        throw new Error('Unexpected API response structure');
+                    }
+                } catch (error) {
+                    console.error(`API Call failed. Retries left: ${retries - 1}`, error);
+                    retries--;
+                    if (retries === 0) throw error;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2; // Exponential backoff
+                }
+            }
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userText = inputField.value.trim();
+            if (!userText) return;
+
+            // UI Updates: Disable input, show user message, show typing indicator
+            inputField.value = '';
+            inputField.disabled = true;
+            submitBtn.disabled = true;
+            apiError.classList.add('hidden');
+            
+            appendMessage(userText, true);
+            typingIndicator.classList.remove('hidden');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                // Call API
+                const aiResponse = await callGemini(userText);
+                
+                // Hide typing indicator and show response
+                typingIndicator.classList.add('hidden');
+                appendMessage(aiResponse, false);
+            } catch (error) {
+                typingIndicator.classList.add('hidden');
+                apiError.classList.remove('hidden');
+                console.error("Gemini API Error:", error);
+            } finally {
+                // Re-enable input
+                inputField.disabled = false;
+                submitBtn.disabled = false;
+                inputField.focus();
+            }
+        });
+    </script>
+</body>
+</html>
